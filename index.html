@@ -16,12 +16,14 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    /* Prevents the body from scrolling itself if content slightly overflows */
+    overflow-y: hidden; 
 }
 
 /* Header */
 .header {
     line-height: 1.2;
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Slight reduction for space */
 }
 
 .header h1 {
@@ -45,7 +47,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Slight reduction for space */
     flex-wrap: wrap;
 }
 
@@ -73,26 +75,34 @@ body {
 
 #searchButton:hover { background-color: #eee; }
 
-/* Results Container - MODIFIED FOR FIXED HEIGHT AND SCROLLING */
+/* Main Content Wrapper (Optional, but helps with fixed positioning) */
+#main-content {
+    flex-grow: 1;
+    overflow-y: auto; /* Allows content overflow within this section if needed */
+    padding-bottom: 10px;
+}
+
+/* Results Container - Scrollable, Fixed Height */
 #results {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align content to the top */
+    justify-content: flex-start;
     gap: 2px;
-    margin-bottom: 10px; /* Reduced margin to bring player closer */
+    margin-bottom: 8px; /* Further reduced margin to save space */
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     
-    /* NEW: Fixed height (5 * ~56px song card height) + scrollbar */
-    max-height: 280px; /* Approximately 5 song cards tall (5 * 56px) */
-    overflow-y: auto;  /* Enable vertical scrollbar */
-    padding-right: 5px; /* Add some padding to prevent scrollbar touching the edge */
-    background: rgba(0,0,0,0.1); /* Subtle background to frame the scrollable area */
+    /* MODIFIED: Increased scrollable height to ensure 5 results fit comfortably and 
+       combined height with player fits in viewport */
+    max-height: 250px; 
+    overflow-y: auto; 
+    padding-right: 5px;
+    background: rgba(0,0,0,0.1); 
     border-radius: 5px;
 }
 
-/* Song card - Height is crucial for fixed container sizing */
+/* Song card */
 .song-card {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(5px);
@@ -105,8 +115,8 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    min-height: 56px; /* Explicit height control for consistent scrolling */
-    flex-shrink: 0; /* Prevents shrinking */
+    min-height: 54px; /* Slight height reduction */
+    flex-shrink: 0;
 }
 .song-card:hover {
     transform: none;
@@ -122,57 +132,42 @@ body {
     margin-bottom: 0;
     flex-shrink: 0;
 }
-.song-card:hover img { transform: none; }
 
-.song-info {
-    flex-grow: 1;
-    overflow: hidden;
-    white-space: nowrap;
-}
+.song-info { flex-grow: 1; overflow: hidden; white-space: nowrap; }
+.song-card h3 { font-size: 1em; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; }
+.song-card p { font-size: 0.8em; color: #ccc; overflow: hidden; text-overflow: ellipsis; }
 
-.song-card h3 { 
-    font-size: 1em; 
-    margin-bottom: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.song-card p { 
-    font-size: 0.8em; 
-    color: #ccc; 
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Details section (The Player Container) */
+/* Details section (The Player Container) - REDUCED LENGTH/HEIGHT */
 #details {
-    /* Kept margins low to ensure it's close to the results */
-    margin-top: 10px;
+    margin-top: 8px; /* Further reduced margin to save space */
     background: rgba(0,0,0,0.3);
     border-radius:15px;
-    padding:20px;
+    /* REDUCED vertical padding to decrease length/height */
+    padding:15px 20px; 
     display:none;
-    /* Increased max-width for breadth */
     max-width: 800px; 
     margin-left:auto;
     margin-right:auto;
     transition: all 0.3s ease;
-    margin-bottom: 10px; 
+    margin-bottom: 0; /* Removed bottom margin */
 }
+
+/* Reduced image margin */
 #details img {
-    width:200px;
-    height:200px;
+    width:150px; /* Reduced image size slightly to save space */
+    height:150px;
     border-radius:15px;
     object-fit:cover;
     display:block;
     margin:auto;
-    margin-bottom:15px;
+    margin-bottom: 10px; /* Reduced margin */
     transition: transform 0.3s;
 }
 #details img:hover { transform: scale(1.05); }
 
 #details h2 { text-align:center; margin-bottom:5px; }
-#details p { text-align:center; margin-bottom:15px; font-size:0.95em; color:#ddd; }
-#details audio { width:100%; margin-bottom:10px; }
+#details p { text-align:center; margin-bottom:10px; font-size:0.95em; color:#ddd; }
+#details audio { width:100%; margin-bottom: 0; } /* Removed audio margin-bottom */
 
 /* Download options */
 #downloadOptions {
@@ -223,7 +218,6 @@ body {
     <img id="detail-img" src="" alt="Thumbnail">
     <h2 id="detail-title"></h2>
     <p id="detail-artist"></p>
-    <p id="detail-lyrics">Lyrics not available</p>
     <audio id="player" controls></audio>
     <div id="downloadOptions"></div>
 </div>
@@ -238,7 +232,7 @@ const detailsDiv = document.getElementById('details');
 const detailImg = document.getElementById('detail-img');
 const detailTitle = document.getElementById('detail-title');
 const detailArtist = document.getElementById('detail-artist');
-const detailLyrics = document.getElementById('detail-lyrics');
+// REMOVED detailLyrics
 const player = document.getElementById('player');
 const downloadOptions = document.getElementById('downloadOptions');
 
@@ -252,7 +246,6 @@ async function searchSong(){
     resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>Loading...</p>";
     detailsDiv.style.display = 'none';
 
-    // Requesting more tracks (e.g., limit=12) ensures the container is scrollable
     const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${clientId}&format=json&limit=12&search=${encodeURIComponent(query)}`;
 
     try{
@@ -289,7 +282,7 @@ function showDetails(track){
     detailImg.src = track.album_image;
     detailTitle.textContent = track.name;
     detailArtist.textContent = "Artist: " + track.artist_name;
-    detailLyrics.textContent = "Lyrics not available";
+    // REMOVED detailLyrics assignment
     player.src = track.audio;
 
     downloadOptions.innerHTML = "";
@@ -308,8 +301,7 @@ function showDetails(track){
     });
 
     detailsDiv.style.display = 'block';
-    // No need to scroll the window since the player is immediately visible
-    // window.scrollTo({top: detailsDiv.offsetTop-20, behavior:'smooth'}); 
+    // Removed window scroll since the player should be visible
 }
 </script>
 
