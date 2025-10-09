@@ -16,14 +16,13 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* Prevents the body from scrolling itself if content slightly overflows */
     overflow-y: hidden; 
 }
 
 /* Header */
 .header {
     line-height: 1.2;
-    margin-bottom: 15px; /* Slight reduction for space */
+    margin-bottom: 15px;
 }
 
 .header h1 {
@@ -47,7 +46,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-bottom: 15px; /* Slight reduction for space */
+    margin-bottom: 15px;
     flex-wrap: wrap;
 }
 
@@ -75,26 +74,17 @@ body {
 
 #searchButton:hover { background-color: #eee; }
 
-/* Main Content Wrapper (Optional, but helps with fixed positioning) */
-#main-content {
-    flex-grow: 1;
-    overflow-y: auto; /* Allows content overflow within this section if needed */
-    padding-bottom: 10px;
-}
-
 /* Results Container - Scrollable, Fixed Height */
 #results {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 2px;
-    margin-bottom: 8px; /* Further reduced margin to save space */
+    margin-bottom: 8px;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     
-    /* MODIFIED: Increased scrollable height to ensure 5 results fit comfortably and 
-       combined height with player fits in viewport */
     max-height: 250px; 
     overflow-y: auto; 
     padding-right: 5px;
@@ -115,7 +105,7 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    min-height: 54px; /* Slight height reduction */
+    min-height: 54px;
     flex-shrink: 0;
 }
 .song-card:hover {
@@ -137,55 +127,57 @@ body {
 .song-card h3 { font-size: 1em; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; }
 .song-card p { font-size: 0.8em; color: #ccc; overflow: hidden; text-overflow: ellipsis; }
 
-/* Details section (The Player Container) - REDUCED LENGTH/HEIGHT */
+/* Details section (The Player Container) */
 #details {
-    margin-top: 8px; /* Further reduced margin to save space */
+    margin-top: 8px;
     background: rgba(0,0,0,0.3);
     border-radius:15px;
-    /* REDUCED vertical padding to decrease length/height */
     padding:15px 20px; 
     display:none;
     max-width: 800px; 
     margin-left:auto;
     margin-right:auto;
     transition: all 0.3s ease;
-    margin-bottom: 0; /* Removed bottom margin */
+    margin-bottom: 0;
 }
 
 /* Reduced image margin */
 #details img {
-    width:150px; /* Reduced image size slightly to save space */
+    width:150px;
     height:150px;
     border-radius:15px;
     object-fit:cover;
     display:block;
     margin:auto;
-    margin-bottom: 10px; /* Reduced margin */
+    margin-bottom: 10px;
     transition: transform 0.3s;
 }
 #details img:hover { transform: scale(1.05); }
 
 #details h2 { text-align:center; margin-bottom:5px; }
 #details p { text-align:center; margin-bottom:10px; font-size:0.95em; color:#ddd; }
-#details audio { width:100%; margin-bottom: 0; } /* Removed audio margin-bottom */
+#details audio { width:100%; margin-bottom: 0; }
 
-/* Download options */
+/* Download options (Single button) */
 #downloadOptions {
     display:flex;
     justify-content:center;
     gap:10px;
     flex-wrap:wrap;
 }
-.quality-btn {
-    padding:8px 15px;
+/* Unified Download Button Style */
+.download-btn {
+    padding:10px 20px; /* Slightly larger padding for prominence */
     border:none;
     border-radius:25px;
-    background: #ff416c;
+    background: #ff416c; /* Bright color */
     color:white;
+    font-size: 1em;
+    font-weight: bold;
     cursor:pointer;
     transition:0.3s;
 }
-.quality-btn:hover { background:#ff4b2b; }
+.download-btn:hover { background:#ff4b2b; }
 
 /* Responsive */
 @media(max-width:900px){
@@ -232,7 +224,6 @@ const detailsDiv = document.getElementById('details');
 const detailImg = document.getElementById('detail-img');
 const detailTitle = document.getElementById('detail-title');
 const detailArtist = document.getElementById('detail-artist');
-// REMOVED detailLyrics
 const player = document.getElementById('player');
 const downloadOptions = document.getElementById('downloadOptions');
 
@@ -282,26 +273,24 @@ function showDetails(track){
     detailImg.src = track.album_image;
     detailTitle.textContent = track.name;
     detailArtist.textContent = "Artist: " + track.artist_name;
-    // REMOVED detailLyrics assignment
     player.src = track.audio;
 
     downloadOptions.innerHTML = "";
-    const qualities = [
-        {label:'Standard', url: track.audio},
-        {label:'High', url: track.audio},
-        {label:'Low', url: track.audio}
-    ];
-
-    qualities.forEach(q=>{
-        const btn = document.createElement('button');
-        btn.className = 'quality-btn';
-        btn.textContent = q.label;
-        btn.onclick = () => window.open(q.url, '_blank');
-        downloadOptions.appendChild(btn);
-    });
+    
+    // --- NEW: Single Download Button Implementation ---
+    const btn = document.createElement('a');
+    btn.className = 'download-btn';
+    btn.textContent = 'Download (One-Click)';
+    
+    // Set the anchor tag properties to trigger download
+    btn.href = track.audio;
+    btn.download = `${track.name} - ${track.artist_name}.mp3`; // Suggest a filename
+    btn.target = '_blank'; // Open in new tab, often helps trigger the download
+    
+    downloadOptions.appendChild(btn);
+    // -------------------------------------------------
 
     detailsDiv.style.display = 'block';
-    // Removed window scroll since the player should be visible
 }
 </script>
 
