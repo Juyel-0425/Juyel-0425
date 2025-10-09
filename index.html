@@ -11,21 +11,17 @@ body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #6a11cb, #2575fc);
     color: #fff;
-    padding: 20px 20px 0 20px; /* Adjusted padding to remove bottom padding for now */
+    padding: 20px; 
     text-align: center;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    
-    /* NEW: Add padding to the bottom of the body equal to the footer's height + a little extra for visual space. */
-    /* The footer's height is roughly 60-70px, so 80px ensures clearance. */
-    padding-bottom: 80px; 
 }
 
 /* Header */
 .header {
     line-height: 1.2;
-    margin-bottom: 20px; /* Increased margin for better spacing */
+    margin-bottom: 20px;
 }
 
 .header h1 {
@@ -36,7 +32,12 @@ body {
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-/* Removed .header h2 style as requested */
+.header h2 {
+    font-size: 0.75em; 
+    color: #eee;
+    font-weight: 300;
+    margin-top: 5px;
+}
 
 /* Search container */
 #search-container {
@@ -51,8 +52,8 @@ body {
 #searchBox, #searchButton {
     border:none;
     outline:none;
-    color: #333; /* Changed text color for better contrast on white */
-    background-color: white; /* Changed to white */
+    color: #333;
+    background-color: white;
 }
 
 #searchBox {
@@ -70,55 +71,63 @@ body {
     transition: 0.3s;
 }
 
-#searchButton:hover { background-color: #eee; } /* Lighter hover for white button */
+#searchButton:hover { background-color: #eee; }
 
-/* Results - Modified for thin horizontal rows */
+/* Results Container - MODIFIED FOR FIXED HEIGHT AND SCROLLING */
 #results {
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    justify-content: center;
-    gap: 2px; /* 2px distinct between rows */
-    /* REDUCED margin-bottom from 80px to 20px to bring the player closer to the results */
-    margin-bottom: 20px; 
-    max-width: 800px; /* Constrain results width */
+    flex-direction: column;
+    justify-content: flex-start; /* Align content to the top */
+    gap: 2px;
+    margin-bottom: 10px; /* Reduced margin to bring player closer */
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    
+    /* NEW: Fixed height (5 * ~56px song card height) + scrollbar */
+    max-height: 280px; /* Approximately 5 song cards tall (5 * 56px) */
+    overflow-y: auto;  /* Enable vertical scrollbar */
+    padding-right: 5px; /* Add some padding to prevent scrollbar touching the edge */
+    background: rgba(0,0,0,0.1); /* Subtle background to frame the scrollable area */
+    border-radius: 5px;
 }
 
-/* Song card - Modified for thin horizontal row */
+/* Song card - Height is crucial for fixed container sizing */
 .song-card {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(5px);
-    border-radius: 5px; /* Smaller border radius for thin row look */
-    width: 100%; /* Full width within results container */
-    padding: 8px 15px; /* Reduced padding for thin row */
-    text-align: left; /* Align text left */
+    border-radius: 5px;
+    width: 100%;
+    padding: 8px 15px;
+    text-align: left;
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-    display: flex; /* Flex layout for content */
+    display: flex;
     align-items: center;
     gap: 15px;
+    min-height: 56px; /* Explicit height control for consistent scrolling */
+    flex-shrink: 0; /* Prevents shrinking */
 }
 .song-card:hover {
-    transform: none; /* Removed scale for thin rows */
+    transform: none;
     background: rgba(255,255,255,0.25);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Subtle shadow for distinction */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .song-card img {
-    width: 40px; /* Smaller thumbnail */
-    height: 40px; /* Smaller thumbnail */
-    border-radius: 50%; /* Circular thumbnail */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     object-fit: cover;
     margin-bottom: 0;
     flex-shrink: 0;
 }
-.song-card:hover img { transform: none; } /* Removed scale on hover */
+.song-card:hover img { transform: none; }
 
 .song-info {
     flex-grow: 1;
-    overflow: hidden; /* Hide overflow */
-    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .song-card h3 { 
@@ -136,17 +145,17 @@ body {
 
 /* Details section (The Player Container) */
 #details {
-    /* REDUCED margin-top from 30px to 10px to bring it closer to the results */
-    margin-top: 10px; 
+    /* Kept margins low to ensure it's close to the results */
+    margin-top: 10px;
     background: rgba(0,0,0,0.3);
     border-radius:15px;
     padding:20px;
     display:none;
-    max-width:600px;
+    /* Increased max-width for breadth */
+    max-width: 800px; 
     margin-left:auto;
     margin-right:auto;
     transition: all 0.3s ease;
-    /* Added margin-bottom to push it away from the fixed footer area */
     margin-bottom: 10px; 
 }
 #details img {
@@ -183,24 +192,10 @@ body {
 }
 .quality-btn:hover { background:#ff4b2b; }
 
-/* Footer - Fixed at bottom */
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    /* REMOVED negative margin-bottom to avoid complexity, letting body padding handle clearance */
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(6px);
-    text-align: center;
-    /* Adjusted padding for a clean look */
-    padding: 10px 0; 
-    font-size: 0.85em;
-    color: #fff;
-    transition: margin-bottom 0.3s ease; 
-}
-
 /* Responsive */
+@media(max-width:900px){
+    #results, #details { max-width: 90%; } 
+}
 @media(max-width:768px){
     #searchBox { width:70%; }
 }
@@ -214,7 +209,8 @@ footer {
 
 <div class="header">
     <h1>MUSIC DOWNLOADER</h1>
-    </div>
+    <h2>Music Downloader by Juyel Hossain | All music displayed here is provided by Jamendo API</h2>
+</div>
 
 <div id="search-container">
     <input type="text" id="searchBox" placeholder="Search for a song...">
@@ -231,11 +227,6 @@ footer {
     <audio id="player" controls></audio>
     <div id="downloadOptions"></div>
 </div>
-
-<footer>
-    Music Downloader by Juyel Hossain<br>
-    All music displayed here is provided by Jamendo API
-</footer>
 
 <script>
 const clientId = "32482af0"; // Replace with your Jamendo API key
@@ -258,9 +249,10 @@ async function searchSong(){
     const query = searchBox.value.trim();
     if(!query) return alert("Please enter a song name!");
 
-    resultsDiv.innerHTML = "<p style='text-align:center;'>Loading...</p>";
+    resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>Loading...</p>";
     detailsDiv.style.display = 'none';
 
+    // Requesting more tracks (e.g., limit=12) ensures the container is scrollable
     const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${clientId}&format=json&limit=12&search=${encodeURIComponent(query)}`;
 
     try{
@@ -269,14 +261,13 @@ async function searchSong(){
         resultsDiv.innerHTML = "";
 
         if(data.results.length===0){
-            resultsDiv.innerHTML = "<p style='text-align:center;'>No songs found.</p>";
+            resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>No songs found.</p>";
             return;
         }
 
         data.results.forEach(track => {
             const card = document.createElement('div');
             card.className = 'song-card';
-            // Modified card innerHTML to support thin row layout
             card.innerHTML = `
                 <img src="${track.album_image}" alt="Thumbnail">
                 <div class="song-info">
@@ -290,7 +281,7 @@ async function searchSong(){
 
     }catch(err){
         console.error(err);
-        resultsDiv.innerHTML = "<p style='text-align:center;'>Error fetching songs.</p>";
+        resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>Error fetching songs.</p>";
     }
 }
 
@@ -317,7 +308,8 @@ function showDetails(track){
     });
 
     detailsDiv.style.display = 'block';
-    window.scrollTo({top: detailsDiv.offsetTop-20, behavior:'smooth'});
+    // No need to scroll the window since the player is immediately visible
+    // window.scrollTo({top: detailsDiv.offsetTop-20, behavior:'smooth'}); 
 }
 </script>
 
