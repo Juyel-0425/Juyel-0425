@@ -11,11 +11,15 @@ body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #6a11cb, #2575fc);
     color: #fff;
-    padding: 20px;
+    padding: 20px 20px 0 20px; /* Adjusted padding to remove bottom padding for now */
     text-align: center;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    
+    /* NEW: Add padding to the bottom of the body equal to the footer's height + a little extra for visual space. */
+    /* The footer's height is roughly 60-70px, so 80px ensures clearance. */
+    padding-bottom: 80px; 
 }
 
 /* Header */
@@ -74,7 +78,8 @@ body {
     flex-direction: column; /* Stack children vertically */
     justify-content: center;
     gap: 2px; /* 2px distinct between rows */
-    margin-bottom: 80px;
+    /* REDUCED margin-bottom from 80px to 20px to bring the player closer to the results */
+    margin-bottom: 20px; 
     max-width: 800px; /* Constrain results width */
     margin-left: auto;
     margin-right: auto;
@@ -129,9 +134,10 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Details section */
+/* Details section (The Player Container) */
 #details {
-    margin-top:30px;
+    /* REDUCED margin-top from 30px to 10px to bring it closer to the results */
+    margin-top: 10px; 
     background: rgba(0,0,0,0.3);
     border-radius:15px;
     padding:20px;
@@ -140,6 +146,8 @@ body {
     margin-left:auto;
     margin-right:auto;
     transition: all 0.3s ease;
+    /* Added margin-bottom to push it away from the fixed footer area */
+    margin-bottom: 10px; 
 }
 #details img {
     width:200px;
@@ -175,21 +183,20 @@ body {
 }
 .quality-btn:hover { background:#ff4b2b; }
 
-/* Footer - Fixed at bottom - Modified to slightly hide on scroll */
+/* Footer - Fixed at bottom */
 footer {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    /* Apply a small negative margin to slightly hide the top edge */
-    margin-bottom: -5px; 
+    /* REMOVED negative margin-bottom to avoid complexity, letting body padding handle clearance */
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(6px);
     text-align: center;
-    padding: 10px 0 15px 0; /* Increased bottom padding to compensate for negative margin */
+    /* Adjusted padding for a clean look */
+    padding: 10px 0; 
     font-size: 0.85em;
     color: #fff;
-    /* Smooth transition for margin/position changes if any */
     transition: margin-bottom 0.3s ease; 
 }
 
