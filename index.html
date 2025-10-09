@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spotify Music Player</title>
+<title>Music Downloader</title>
 <style>
 /* Reset */
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
     font-family: 'Segoe UI', sans-serif;
-    /* Updated gradient to reflect Spotify's colors */
-    background: linear-gradient(135deg, #1DB954, #191414);
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
     color: #fff;
     padding: 20px; 
     text-align: center;
@@ -28,8 +27,7 @@ body {
 
 .header h1 {
     font-size: 2.2em;
-    /* Spotify Green */
-    background: #1ED760; 
+    background: linear-gradient(90deg, #ff416c, #ff4b2b);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -160,25 +158,26 @@ body {
 #details p { text-align:center; margin-bottom:10px; font-size:0.95em; color:#ddd; }
 #details audio { width:100%; margin-bottom: 0; }
 
-/* Play Button (Replaced Download) */
-#playContainer {
+/* Download options (Single button) */
+#downloadOptions {
     display:flex;
     justify-content:center;
     gap:10px;
     flex-wrap:wrap;
 }
-.play-btn {
-    padding:10px 20px; 
+/* Unified Download Button Style */
+.download-btn {
+    padding:10px 20px; /* Slightly larger padding for prominence */
     border:none;
     border-radius:25px;
-    background: #1ED760; /* Spotify Green */
+    background: #ff416c; /* Bright color */
     color:white;
     font-size: 1em;
     font-weight: bold;
     cursor:pointer;
     transition:0.3s;
 }
-.play-btn:hover { background:#16a44b; }
+.download-btn:hover { background:#ff4b2b; }
 
 /* Responsive */
 @media(max-width:900px){
@@ -196,8 +195,8 @@ body {
 <body>
 
 <div class="header">
-    <h1>SPOTIFY MUSIC PLAYER</h1>
-    <h2>Music streamed via Spotify Web API - Only 30-second previews available.</h2>
+    <h1>MUSIC DOWNLOADER</h1>
+    <h2>Music Downloader by Juyel Hossain | All music displayed here is provided by Jamendo API</h2>
 </div>
 
 <div id="search-container">
@@ -208,23 +207,15 @@ body {
 <div id="results"></div>
 
 <div id="details">
-    <img id="detail-img" src="" alt="Album Art">
+    <img id="detail-img" src="" alt="Thumbnail">
     <h2 id="detail-title"></h2>
     <p id="detail-artist"></p>
-    <audio id="player" controls></audio> 
-    <div id="playContainer">
-        <button id="preview-btn" class="play-btn" onclick="playPreview()">Play 30s Preview</button>
-        <p style="font-size: 0.8em; margin-top: 10px; color: #ddd;">*Download functionality removed to comply with Spotify's Developer Terms of Service.</p>
-    </div>
+    <audio id="player" controls></audio>
+    <div id="downloadOptions"></div>
 </div>
 
 <script>
-// ===============================================
-// === 🛑 SPOTIFY API CREDENTIALS - IMPORTANT 🛑 ===
-// ===============================================
-const clientId = "ae9ffb867bbb41d5a3bef5908683329e";     // <--- PASTE YOUR CLIENT ID HERE
-const clientSecret = "0684d65d11bc4d85a2f4e0b62b8f65c4"; // <--- PASTE YOUR CLIENT SECRET HERE
-// ===============================================
+const clientId = "32482af0"; // Replace with your Jamendo API key
 
 const searchButton = document.getElementById('searchButton');
 const searchBox = document.getElementById('searchBox');
@@ -234,45 +225,11 @@ const detailImg = document.getElementById('detail-img');
 const detailTitle = document.getElementById('detail-title');
 const detailArtist = document.getElementById('detail-artist');
 const player = document.getElementById('player');
-const playContainer = document.getElementById('playContainer');
-
-let accessToken = ''; // Global variable for the access token
-let currentTrackPreviewUrl = ''; // Global variable for the selected track's preview URL
+const downloadOptions = document.getElementById('downloadOptions');
 
 searchButton.addEventListener('click', searchSong);
 searchBox.addEventListener('keypress', e => { if(e.key==='Enter') searchSong(); });
 
-
-// 1. GET ACCESS TOKEN (Client Credentials Flow)
-async function getAccessToken(){
-    const authString = btoa(`${clientId}:${clientSecret}`);
-    const tokenUrl = 'https://accounts.spotify.com/api/token';
-
-    try {
-        const response = await fetch(tokenUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Basic ${authString}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'grant_type=client_credentials'
-        });
-
-        const data = await response.json();
-        accessToken = data.access_token;
-        // Spotify tokens expire after 1 hour (3600 seconds).
-        // For a full app, you would add logic to refresh the token.
-        return accessToken; 
-
-    } catch (err) {
-        console.error("Error fetching access token:", err);
-        resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px; color: #f00;'>Authentication Error. Check Client ID/Secret.</p>";
-        return null;
-    }
-}
-
-
-// 2. SEARCH SONG
 async function searchSong(){
     const query = searchBox.value.trim();
     if(!query) return alert("Please enter a song name!");
@@ -280,111 +237,61 @@ async function searchSong(){
     resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>Loading...</p>";
     detailsDiv.style.display = 'none';
 
-    if (!accessToken) {
-        if (!await getAccessToken()) return;
-    }
-
-    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=12`;
+    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${clientId}&format=json&limit=12&search=${encodeURIComponent(query)}`;
 
     try{
-        const response = await fetch(searchUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
-        
-        // Handle token expiration: if 401, try to refresh and re-search
-        if (response.status === 401) {
-             if (!await getAccessToken()) return; // Re-fetch token
-             // Re-try search
-             const retryResponse = await fetch(searchUrl, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            return processSearchResults(await retryResponse.json());
+        const response = await fetch(url);
+        const data = await response.json();
+        resultsDiv.innerHTML = "";
 
-        } else if (!response.ok) {
-            throw new Error(`Spotify API error: ${response.status}`);
+        if(data.results.length===0){
+            resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>No songs found.</p>";
+            return;
         }
 
-        const data = await response.json();
-        processSearchResults(data);
+        data.results.forEach(track => {
+            const card = document.createElement('div');
+            card.className = 'song-card';
+            card.innerHTML = `
+                <img src="${track.album_image}" alt="Thumbnail">
+                <div class="song-info">
+                    <h3>${track.name}</h3>
+                    <p>${track.artist_name}</p>
+                </div>
+            `;
+            card.onclick = () => showDetails(track);
+            resultsDiv.appendChild(card);
+        });
 
     }catch(err){
         console.error(err);
-        resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px; color: #f00;'>Error fetching songs.</p>";
+        resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>Error fetching songs.</p>";
     }
 }
 
-function processSearchResults(data) {
-    resultsDiv.innerHTML = "";
-    const tracks = data.tracks.items;
-
-    if(tracks.length === 0){
-        resultsDiv.innerHTML = "<p style='text-align:center; padding: 10px;'>No songs found.</p>";
-        return;
-    }
-
-    tracks.forEach(track => {
-        // Get the largest image for the card, or a placeholder if none
-        const albumImage = track.album.images.length > 0 ? track.album.images[track.album.images.length - 1].url : 'placeholder.png';
-        const artistName = track.artists.map(artist => artist.name).join(', ');
-
-        const card = document.createElement('div');
-        card.className = 'song-card';
-        card.innerHTML = `
-            <img src="${albumImage}" alt="Album Art">
-            <div class="song-info">
-                <h3>${track.name}</h3>
-                <p>${artistName}</p>
-            </div>
-        `;
-        card.onclick = () => showDetails(track, artistName);
-        resultsDiv.appendChild(card);
-    });
-}
-
-
-// 3. SHOW DETAILS & SET PLAYER SOURCE
-function showDetails(track, artistName){
-    // Get the medium image for the details section
-    const albumImage = track.album.images.length > 1 ? track.album.images[1].url : 'placeholder.png'; 
-
-    detailImg.src = albumImage;
+function showDetails(track){
+    detailImg.src = track.album_image;
     detailTitle.textContent = track.name;
-    detailArtist.textContent = "Artist: " + artistName;
+    detailArtist.textContent = "Artist: " + track.artist_name;
+    player.src = track.audio;
+
+    downloadOptions.innerHTML = "";
     
-    // Set the global variable for the 30s preview stream URL
-    currentTrackPreviewUrl = track.preview_url;
+    // --- NEW: Single Download Button Implementation ---
+    const btn = document.createElement('a');
+    btn.className = 'download-btn';
+    btn.textContent = 'Download (One-Click)';
+    
+    // Set the anchor tag properties to trigger download
+    btn.href = track.audio;
+    btn.download = `${track.name} - ${track.artist_name}.mp3`; // Suggest a filename
+    btn.target = '_blank'; // Open in new tab, often helps trigger the download
+    
+    downloadOptions.appendChild(btn);
+    // -------------------------------------------------
 
-    // Reset and hide the default audio controls to use the custom button
-    player.src = '';
-    player.pause(); 
-    player.controls = false; 
-
-    // Show the details section
     detailsDiv.style.display = 'block';
 }
-
-// 4. PLAY PREVIEW
-function playPreview() {
-    if (!currentTrackPreviewUrl) {
-        alert("Sorry, no 30-second preview stream is available for this track.");
-        player.controls = false; 
-        return;
-    }
-
-    // Set the source and show controls for playback
-    player.src = currentTrackPreviewUrl;
-    player.controls = true; 
-    player.play();
-}
-
-// Initial token check (optional but good practice)
-getAccessToken();
 </script>
 
 </body>
