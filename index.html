@@ -1,213 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Age Checker</title>
-
+<title>PNL//SPEED — Speedy PnL Store</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f5f7fb;
-}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
-/* credits */
-.credit{
-  position:fixed;
-  top:10px;
-  left:15px;
-  font-size:14px;
-  color:#555;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050509;color:#e8ffff;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,255,255,.025) 4px);z-index:999}
+body::after{content:"";position:fixed;width:700px;height:700px;background:#00ffff;filter:blur(250px);opacity:.05;top:-300px;right:-250px;pointer-events:none}
 
-/* input section */
-.top-section{
-  margin-top:25vh;
-  text-align:center;
-  padding:20px;
-}
+nav{height:75px;display:flex;align-items:center;justify-content:space-between;padding:0 7%;border-bottom:1px solid rgba(0,255,255,.2);background:rgba(5,5,9,.8);backdrop-filter:blur(15px);position:sticky;top:0;z-index:100}
+.logo{font-family:Orbitron;font-size:20px;font-weight:900;color:#00ffff;text-shadow:0 0 15px #00ffff}
+.logo span{color:#ff00ea}
+.nav-links{display:flex;gap:30px}
+.nav-links a{color:#aaa;text-decoration:none;font-weight:600;transition:.3s}
+.nav-links a:hover{color:#00ffff;text-shadow:0 0 10px #00ffff}
 
-h2{ font-size:26px; }
+.hero{min-height:300px;display:flex;align-items:center;padding:50px 7%;position:relative}
+.hero-content{max-width:800px}
+.tag{color:#ff00ea;font-weight:bold;letter-spacing:4px;margin-bottom:20px}
+.hero h1{font-family:Orbitron;font-size:clamp(42px,7vw,90px);line-height:.95;text-transform:uppercase}
+.hero h1 span{color:#00ffff;text-shadow:0 0 10px #00ffff,0 0 30px #00ffff}
+.hero p{color:#999;font-size:19px;max-width:600px;margin:25px 0}
 
-input{
-  width:85%;
-  max-width:350px;
-  padding:15px;
-  font-size:18px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:15px;
-}
+.store{padding:30px 7% 100px}
+.section-title{font-family:Orbitron;font-size:28px;margin-bottom:25px}
+.section-title span{color:#00ffff}
 
-button{
-  width:85%;
-  max-width:350px;
-  padding:15px;
-  font-size:18px;
-  margin-top:15px;
-  background:#4CAF50;
-  color:white;
-  border:none;
-  border-radius:10px;
-}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.card{background:linear-gradient(145deg,rgba(0,255,255,.04),rgba(255,0,234,.02)),#0a0a10;border:1px solid #20202c;padding:20px;position:relative;transition:.3s;overflow:hidden;cursor:pointer}
+.card:hover{transform:translateY(-7px);border-color:#00ffff;box-shadow:0 0 25px rgba(0,255,255,.15)}
+.card::before{content:"PNL";position:absolute;top:15px;right:-25px;background:#ff00ea;color:#000;padding:4px 30px;font-weight:bold;font-size:11px;transform:rotate(45deg)}
+.icon{width:75px;height:75px;display:flex;align-items:center;justify-content:center;font-size:36px;background:#11111a;border:1px solid #00ffff;margin-bottom:18px;box-shadow:inset 0 0 20px rgba(0,255,255,.08)}
+.card h3{font-family:Orbitron;font-size:18px;margin-bottom:7px}
+.description{color:#777;min-height:45px}
+.meta{display:flex;justify-content:space-between;color:#555;font-size:13px;margin:15px 0}
+.buy{display:block;width:100%;text-align:center;text-decoration:none;margin-top:15px;padding:11px;background:transparent;border:1px solid #ff00ea;color:#ff00ea;font-family:inherit;font-weight:bold;cursor:pointer;transition:.3s}
+.buy:hover{background:#ff00ea;color:black;box-shadow:0 0 20px #ff00ea}
 
-/* popup */
-.popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
+#versionContainer{margin-top:40px;display:none}
 
-.popup-box{
-  background:white;
-  padding:25px;
-  border-radius:15px;
-  text-align:center;
-  width:80%;
-  max-width:300px;
-}
+footer{border-top:1px solid #191923;padding:35px 7%;color:#555;display:flex;justify-content:space-between;flex-wrap:wrap;gap:15px}
+footer strong{color:#00ffff}
 
-/* loading */
-.loading{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:white;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-}
-
-.spinner{
-  width:50px;
-  height:50px;
-  border:5px solid #eee;
-  border-top:5px solid #4CAF50;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:20px;
-}
-
-@keyframes spin{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
-}
-
-.percent{
-  margin-top:10px;
-  font-weight:bold;
-  font-size:18px;
-}
-
-/* share button */
-.share-btn{
-  position:fixed;
-  bottom:15px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:400px;
-  background:#2196F3;
+@media(max-width:700px){
+.nav-links{display:none}
+.hero{padding-top:50px}
+footer{flex-direction:column}
 }
 </style>
 </head>
-
 <body>
 
-<div class="credit">Credits - Juyel Hossain</div>
-
-<div class="top-section">
-  <h2>Enter Your Age</h2>
-  <input type="number" id="age" placeholder="Enter age">
-  <br>
-  <button onclick="startProcess()">Process</button>
+<nav>
+<div class="logo">PNL<span>//</span>SPEEDY</div>
+<div class="nav-links">
+<a href="#store">STORE</a>
+<a href="#">SUPPORT</a>
 </div>
+</nav>
 
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <h3 id="loadingText">Starting...</h3>
-  <div class="percent" id="percent">0%</div>
+<section class="hero">
+<div class="hero-content">
+<div class="tag">// DIGITAL SOFTWARE MARKET</div>
+<h1>ENTER THE<br><span>PNL GRID</span></h1>
+<p>Discover premium Free Fire pnLs built to level Up Your Gaming Experience. Instant delivery. Verified Reseller.</p>
 </div>
+</section>
 
-<div class="popup" id="popup">
-  <div class="popup-box">
-    <h3 id="result"></h3>
-    <button onclick="reset()">Test Again</button>
+<section class="store" id="store">
+<div class="section-title">// <span>AVAILABLE_PNLS</span></div>
+
+<div class="grid" id="mainGrid">
+  <div class="card" onclick="showVersions()">
+    <div class="icon">👾</div>
+    <h3>DRIPCLINT</h3>
+    <p class="description">Click Here To Purchase The DripClint ApkMod .</p>
+    <div class="meta"><span>ALL VERSIONS AVAILABLE</span><span>PNL</span></div>
   </div>
 </div>
 
-<button class="share-btn" onclick="shareTool()">
-Share the age testing tool with your friends
-</button>
+<div id="versionContainer">
+  <div class="section-title">// <span>DRIPCLINT_VERSIONS</span></div>
+  <div class="grid" id="versionGrid"></div>
+</div>
+</section>
+
+<footer>
+<div>© 2026 <strong>PNL//NEXUS</strong></div>
+<div>SECURE • VERIFIED RESELLER • DIGITAL</div>
+</footer>
 
 <script>
-var texts = [
-"Connecting to NASA servers .",
-"Hacking government database .",
-"Scanning your birth certificate .",
-"Calculating quantum age .",
-"Talking to time machine .",
-"Verifying with aliens .",
-"Almost done..."
+const dripClintVersions = [
+  { name: "DRIPCLINT v1.0", desc: "APK MOD", version: "v1.0" },
+ 
 ];
 
-function startProcess(){
-  var age = document.getElementById("age").value;
-  document.getElementById("loading").style.display="flex";
-
-  let textIndex = 0;
-  let percent = 0;
-
-  let interval = setInterval(function(){
-
-    // update percent
-    percent += 1;
-    document.getElementById("percent").innerText = percent + "%";
-
-    // change funny text
-    if(percent % 15 === 0 && textIndex < texts.length){
-      document.getElementById("loadingText").innerText = texts[textIndex];
-      textIndex++;
-    }
-
-    // finish at 100%
-    if(percent >= 100){
-      clearInterval(interval);
-      document.getElementById("loading").style.display="none";
-      document.getElementById("result").innerText="Your age is " + age;
-      document.getElementById("popup").style.display="flex";
-    }
-
-  }, 90); // ~9 seconds total
-}
-
-function reset(){
-  document.getElementById("popup").style.display="none";
-  document.getElementById("age").value="";
-  document.getElementById("percent").innerText="0%";
-}
-
-function shareTool(){
-  if(navigator.share){
-    navigator.share({
-      title:"Age Testing Tool",
-      text:"Try this funny age testing tool!",
-      url:window.location.href
-    });
-  }else{
-    alert("Copy this link: "+window.location.href);
-  }
+function showVersions() {
+  const container = document.getElementById("versionContainer");
+  const grid = document.getElementById("versionGrid");
+  grid.innerHTML = "";
+  
+  dripClintVersions.forEach(pnL => {
+    grid.innerHTML += `
+      <div class="card">
+        <div class="icon">👾</div>
+        <h3>${pnL.name}</h3>
+        <p class="description">${pnL.desc}</p>
+        <div class="meta"><span>${pnL.version}</span><span>${pnL.size}</span></div>
+        <a href="https://t.me/+dBY8yDZj3j1kYmRl" target="_blank" class="buy">DM TO BUY</a>
+      </div>
+    `;
+  });
+  
+  container.style.display = "block";
+  container.scrollIntoView({ behavior: 'smooth' });
 }
 </script>
-
 </body>
 </html>
